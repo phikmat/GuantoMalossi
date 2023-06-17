@@ -115,7 +115,7 @@ void readValueIfNeed() {
         }
 
         //Recupero l'ID del messaggio
-        regex regexId(".*id=([^>]+)>(\\w+).*");
+        regex regexId(".*id=([^>]+)>([^<]+).*");
         smatch message; 
         regex_search(fullMessage, message, regexId); 
         idMessage += message[1];
@@ -150,7 +150,7 @@ void readValueIfNeed() {
         
 
         if (recivedValidMessage && bluetooth.writable()) {
-            string readedMessage = "<read id=" + idMessage + ">" + validMessage + "</read>";
+            string readedMessage = "<r id=" + idMessage + ">" + validMessage + "</r>";
             pc.write(readedMessage.c_str(), readedMessage.size());
             bluetooth.write(readedMessage.c_str(), readedMessage.size());
         }
@@ -164,16 +164,16 @@ int main() {
     /*TODO: Dato che il modulo HM-10 invia un massimo di 20 caratteri per volta, bisogna capire come impacchettare i messaggi, 
     in modo che l'app riesca a capire dove inizia e dove finisce il mesaggio, e renderizzare un'unica nuvoletta. 
     
-    Sto immaginando di implementare due TAG <read>MessageUUID</read> e <write id=MessageUUID>Messaggio</write> 
+    Sto immaginando di implementare due TAG <r>MessageUUID</r> e <w id=MessageUUID>Messaggio</w> 
     per indicare se il messaggio che sto inviando è una notifica di lettura oppure è un messaggio da stampare nella chat
     ed aggiungere la proprietà id in modo da poter rendere univoci i messaggi inviati e gestirli correttamente ambo i lati
     */
 
     //Test di scrittura dal guanto all'app
-    string uuid = gen_random(32);
-    string welcomeMessage = "<write id=" + uuid + ">";
+    string uuid = gen_random(8);
+    string welcomeMessage = "<w id=" + uuid + ">";
     welcomeMessage += "Bluetooth initialization ended!";
-    welcomeMessage += "</write>";
+    welcomeMessage += "</w>";
     bluetooth.write(welcomeMessage.c_str(), welcomeMessage.size());
     
 

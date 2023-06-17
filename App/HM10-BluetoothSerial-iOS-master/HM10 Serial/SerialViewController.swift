@@ -184,7 +184,7 @@ final class SerialViewController: MessagesViewController, UITextFieldDelegate, B
             }
             bufferedMessage = ""
             
-            if (regexMessageType == "read") {
+            if (regexMessageType == "r") {
                 let savedMessage = messages.first(where: { return $0.messageId == regexId}) as? Message
                 savedMessage?.read = true
                 
@@ -321,11 +321,11 @@ class Message {
     }
     
     var writableContent: String {
-        return "<write id=\(id)>\(content)</write>"
+        return "<w id=\(id)>\(content)</w>"
     }
     
     init(content: String, sender: Sender, read: Bool = false) {
-        self.id = UUID().uuidString
+        self.id = "\(UUID().uuidString.prefix(8))"
         self.content = content
         self.created = DateFormatter().string(from: Date())
         self.senderID = sender.senderId
