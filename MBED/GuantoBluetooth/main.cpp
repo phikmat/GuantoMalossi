@@ -1,6 +1,9 @@
+#include "DigitalIn.h"
 #include "PinNameAliases.h"
 #include "PinNames.h"
+#include "PwmOut.h"
 #include "ThisThread.h"
+#include "Ticker.h"
 #include "mbed.h"
 #include "BufferedSerial.h"
 #include "mbed_thread.h"
@@ -11,33 +14,69 @@
 #include "string.h"
 #include <regex> 
 
+using namespace std::chrono;
+
 #define MAX_BUFFER_SIZE 200
 
 BufferedSerial bluetooth(D8, D2); // RX, TX pins for HC-10 Bluetooth module
 BufferedSerial pc(USBTX, USBRX); // RX, TX pins for pc
 
+//Input
+AnalogIn aPiezo(A0);
+AnalogIn bPiezo(A1);
+AnalogIn cPiezo(A2);
+AnalogIn dPiezo(A2);
+AnalogIn ePiezo(A2);
+AnalogIn fPiezo(A2);
+AnalogIn gPiezo(A2);
+AnalogIn hPiezo(A2);
+AnalogIn iPiezo(A2);
+AnalogIn lPiezo(A2);
+AnalogIn mPiezo(A2);
+AnalogIn nPiezo(A2);
+AnalogIn oPiezo(A2);
+AnalogIn pPiezo(A2);
+AnalogIn qPiezo(A2);
+AnalogIn rPiezo(A2);
+AnalogIn sPiezo(A2);
+AnalogIn tPiezo(A2);
+AnalogIn uPiezo(A2);
+AnalogIn vPiezo(A2);
+AnalogIn zPiezo(A2);
+
 //TODO: Sostituire i led 
-DigitalOut aSensor(LED1);
-DigitalOut bSensor(D5);
-DigitalOut cSensor(D5);
-DigitalOut dSensor(D5);
-DigitalOut eSensor(D5);
-DigitalOut fSensor(D5);
-DigitalOut gSensor(D5);
-DigitalOut hSensor(D5);
-DigitalOut iSensor(D5);
-DigitalOut lSensor(D5);
-DigitalOut mSensor(D5);
-DigitalOut nSensor(D5);
-DigitalOut oSensor(D5);
-DigitalOut pSensor(D5);
-DigitalOut qSensor(D5);
-DigitalOut rSensor(D5);
-DigitalOut sSensor(D5);
-DigitalOut tSensor(D5);
-DigitalOut uSensor(D5);
-DigitalOut vSensor(D5);
-DigitalOut zSensor(D5);
+PwmOut aSensor(D3);
+PwmOut bSensor(D5);
+DigitalOut cSensor(D6);
+DigitalOut dSensor(D6);
+DigitalOut eSensor(D6);
+DigitalOut fSensor(D6);
+DigitalOut gSensor(D6);
+DigitalOut hSensor(D6);
+DigitalOut iSensor(D6);
+DigitalOut lSensor(D6);
+DigitalOut mSensor(D6);
+DigitalOut nSensor(D6);
+DigitalOut oSensor(D6);
+DigitalOut pSensor(D6);
+DigitalOut qSensor(D6);
+DigitalOut rSensor(D6);
+DigitalOut sSensor(D6);
+DigitalOut tSensor(D6);
+DigitalOut uSensor(D6);
+DigitalOut vSensor(D6);
+DigitalOut zSensor(D6);
+
+DigitalIn buttonInvia(BUTTON1);
+
+float frequency = 200;
+float dutyCycle = 0.5;
+
+string outputMessage = "";
+
+Ticker timer;
+
+bool isWriting = false;
 
 std::string gen_random(const int len) {
     static const char alphanum[] =
@@ -56,20 +95,76 @@ std::string gen_random(const int len) {
 
 
 // Invia dati al modulo Bluetooth
-void writeValue(char c[MAX_BUFFER_SIZE]) {
+void write(string messageStr) {
 
-    bluetooth.write(&c,MAX_BUFFER_SIZE);
-    ThisThread::sleep_for(1s);
+    string uuid = gen_random(8);
+    string welcomeMessage = "<w id=" + uuid + ">";
+    welcomeMessage += messageStr;
+    welcomeMessage += "</w>";
+    bluetooth.write(welcomeMessage.c_str(), welcomeMessage.size());
+    pc.write(welcomeMessage.c_str(), welcomeMessage.size());
 }
 
 //prendere l'input dal guanto e mandarlo al bluethoot
+void seperaParole() { 
+    if (outputMessage.at(outputMessage.length() - 1) != ' ') {
+        outputMessage += " ";
+    }
+}
+
+void resetTicker() {
+    isWriting = true;
+    timer.attach(seperaParole, 4000ms);
+}
+
 void writeValueIfNeed() {
-    //TODO
+    
+    if (buttonInvia == 0 && !outputMessage.empty()) {
+        timer.detach();
+        string temp = outputMessage;
+        write(temp);
+        ThisThread::sleep_for(400ms);
+        outputMessage = "";
+        isWriting = false;
+        return;
+    }
+
+    //printf("Lettera A value: %f\n", aPiezo.read()*1.0f);
+
+    if (aPiezo > 0.75f) {
+        outputMessage += 'a';
+        printf("A value: %f\n", aPiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    } 
+    
+    if (bPiezo > 0.75f) {
+        outputMessage += 'b';
+        printf("B value: %f\n", bPiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    } 
+
 }
 
 void valueToGuanto(char c) {
-    aSensor = (c == 'a' || c == 'A');
-    bSensor = (c == 'b' || c == 'B');
+
+    if (c == 'a' || c == 'A') {
+        aSensor.resume();
+        aSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        aSensor.write(0);
+        aSensor.suspend();
+    } else if (c == 'b' || c == 'B') {
+        bSensor.resume();
+        bSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        bSensor.write(0);
+        bSensor.suspend();
+    }
+
+    //aSensor = (c == 'a' || c == 'A');
+    //bSensor = (c == 'b' || c == 'B');
     cSensor = (c == 'c' || c == 'C');
     dSensor = (c == 'd' || c == 'D');
     eSensor = (c == 'e' || c == 'E');
@@ -92,6 +187,7 @@ void valueToGuanto(char c) {
 }
 
 // Ricevere dati dal modulo Bluetooth
+
 void readValueIfNeed() {
     //inizializzo il buffer dove poter memorizzare temporaneamente la frase ricevuta dal modulo bluetooth
     char buffer[MAX_BUFFER_SIZE] = {};
@@ -101,10 +197,10 @@ void readValueIfNeed() {
     string validMessage = "";
     string idMessage = "";
 
-   ThisThread::sleep_for(500ms);
+   //ThisThread::sleep_for(500ms);
 
     //Verifico che il modulo bluetooth sia in collegato correttamente e in modalità lettura abilitata
-    if(bluetooth.readable()){
+    if(bluetooth.readable() && !isWriting){
         //Leggo una frase che ho ricevuto dal modulo bluetooth
         bluetooth.read(&buffer, MAX_BUFFER_SIZE);
 
@@ -150,9 +246,11 @@ void readValueIfNeed() {
         
 
         if (recivedValidMessage && bluetooth.writable()) {
-            string readedMessage = "<r id=" + idMessage + ">" + validMessage + "</r>";
+            string readedMessage = "<r id=" + idMessage + "></r>";
             pc.write(readedMessage.c_str(), readedMessage.size());
             bluetooth.write(readedMessage.c_str(), readedMessage.size());
+            outputMessage = "";
+            ThisThread::sleep_for(500ms);
         }
     }
 }
@@ -160,6 +258,12 @@ void readValueIfNeed() {
 int main() {
     bluetooth.set_baud(9600);
     pc.set_baud(9600);
+
+    aSensor.period(1.0 / frequency);
+    aSensor.suspend();
+
+    bSensor.period(1.0 / frequency);
+    bSensor.suspend();
 
     /*TODO: Dato che il modulo HM-10 invia un massimo di 20 caratteri per volta, bisogna capire come impacchettare i messaggi, 
     in modo che l'app riesca a capire dove inizia e dove finisce il mesaggio, e renderizzare un'unica nuvoletta. 
@@ -170,16 +274,11 @@ int main() {
     */
 
     //Test di scrittura dal guanto all'app
-    string uuid = gen_random(8);
-    string welcomeMessage = "<w id=" + uuid + ">";
-    welcomeMessage += "Bluetooth initialization ended!";
-    welcomeMessage += "</w>";
-    bluetooth.write(welcomeMessage.c_str(), welcomeMessage.size());
-    
+    write("Bluetooth initialized");
 
     while(1){
-        readValueIfNeed();
         writeValueIfNeed();
+        readValueIfNeed();
     }
 
 }

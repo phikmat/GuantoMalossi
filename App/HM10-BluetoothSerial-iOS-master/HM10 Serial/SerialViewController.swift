@@ -164,7 +164,7 @@ final class SerialViewController: MessagesViewController, UITextFieldDelegate, B
         
         //uso regex per prendere contenuto e id e tipologia
         let range = NSRange(location: 0, length: cleanedMessage.utf16.count)
-        let regex = try! NSRegularExpression(pattern: ".*id=([^>]+)>([^<]+)<\\/([^>]+)>")
+        let regex = try! NSRegularExpression(pattern: ".*id=([^>]+)>([^<]+)?<\\/([^>]+)>")
         let matches = regex.matches(in: cleanedMessage, options: [], range: range)
         
         if let match = matches.first {
@@ -325,7 +325,7 @@ class Message {
     }
     
     init(content: String, sender: Sender, read: Bool = false) {
-        self.id = "\(UUID().uuidString.prefix(8))"
+        self.id = "\(UUID().uuidString.prefix(7))"
         self.content = content
         self.created = DateFormatter().string(from: Date())
         self.senderID = sender.senderId
