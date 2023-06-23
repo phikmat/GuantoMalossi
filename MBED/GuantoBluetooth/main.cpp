@@ -100,16 +100,20 @@ std::string gen_random(const int len) {
 }
 
 
-// Invia dati al modulo Bluetooth
-void write(string messageStr) {
 
-    string uuid = gen_random(8);
-    string welcomeMessage = "<w id=" + uuid + ">";
-    welcomeMessage += messageStr;
-    welcomeMessage += "</w>";
-    bluetooth.write(welcomeMessage.c_str(), welcomeMessage.size());
-    pc.write(welcomeMessage.c_str(), welcomeMessage.size());
+// Invia dei messaggi al modulo Bluetooth
+void write(string messageStr) {
+    string messageId = gen_random(6);                               //Genero un id randomico formato da 6 caratteri alfanumerici
+    string welcomeMessage = "<w id=" + messageId + ">";             //Mi costruisco il tag di tipo write con l'id del messaggio <w id=000000>
+    welcomeMessage += messageStr;                                   //Inserisco il contenuto del messaggio nel tag <w id=000000>Messagio da inviare
+    welcomeMessage += "</w>";                                       //Chiudo il tag <w id=000000>Messagio da inviare</w>
+    bluetooth.write(welcomeMessage.c_str(), welcomeMessage.size()); //Invio del messaggio al modulo bluetooth:  
+                                                                        //buffer: converto la stringa in un buffer con la funzione c_str(),
+                                                                        //length: recupeando la dimensione del buffer con la funzione size()
+    pc.write(welcomeMessage.c_str(), welcomeMessage.size());        //Invio del messaggio al pc per stamparlo in console 
 }
+
+
 
 //prendere l'input dal guanto e mandarlo al bluethoot
 void seperaParole() { 
@@ -135,8 +139,6 @@ void writeValueIfNeed() {
         isWriting = false;
         return;
     }
-
-    //printf("Lettera B value: %f\n", bPiezo.read()*1.0f);
 
     if (aPiezo > 0.75f) {
         outputMessage += 'a';
@@ -170,8 +172,9 @@ void valueToGuanto(char c) {
         bSensor.suspend();
     }
 
-    //aSensor = (c == 'a' || c == 'A');
-    //bSensor = (c == 'b' || c == 'B');
+
+
+    
     cSensor = (c == 'c' || c == 'C');
     dSensor = (c == 'd' || c == 'D');
     eSensor = (c == 'e' || c == 'E');
