@@ -72,11 +72,17 @@ DigitalIn buttonInvia(BUTTON1);
 float frequency = 200;
 float dutyCycle = 0.5;
 
+float frequencyMini = 1000;
+float dutyCycleMini = 0.5;
+
 string outputMessage = "";
 
 Ticker timer;
 
 bool isWriting = false;
+
+//SOS: 
+
 
 std::string gen_random(const int len) {
     static const char alphanum[] =
@@ -120,6 +126,7 @@ void resetTicker() {
 void writeValueIfNeed() {
     
     if (buttonInvia == 0 && !outputMessage.empty()) {
+        //Se premuto più di 3 secondi -> Invio stringa "SOS"
         timer.detach();
         string temp = outputMessage;
         write(temp);
@@ -129,7 +136,7 @@ void writeValueIfNeed() {
         return;
     }
 
-    //printf("Lettera A value: %f\n", aPiezo.read()*1.0f);
+    //printf("Lettera B value: %f\n", bPiezo.read()*1.0f);
 
     if (aPiezo > 0.75f) {
         outputMessage += 'a';
