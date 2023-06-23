@@ -34,7 +34,10 @@ import CoreBluetooth
 import AVFoundation
 import Dispatch
 
-class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource {
+let endpoint: String = "http://{ip}/receive_json"
+
+
+class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource, URLSessionTaskDelegate {
     
     class Message {
         var data: Data
@@ -102,7 +105,7 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
     var topWhiteCellHeight: CGFloat { return UIScreen.main.bounds.height }
     var bottomWhiteCellHeight: CGFloat { return UIScreen.main.bounds.height*2 }
     
-    var endpointIp: String = ""
+    var localIp: String?
     
     
     // MARK: - Multi Threading
@@ -444,7 +447,7 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
             if message.contains("setip") {
                 let ip = message.suffix(20)
                 print("Ip ottenuto: \(ip)")
-                endpointIp = String(ip)
+                localIp = String(ip)
                 textField.text = ""
                 return false
             }
@@ -457,6 +460,8 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
             addText(forMessage: messages.last!)
             scrollToBottom()
             playSentSound()
+            
+            sendDataToServer(message)
         } else {
             //print("No data sent")
         }
@@ -820,9 +825,42 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
         // done in async queue
         //scrollToBottom()
         
+        sendDataToServer(regexMessage)
         
-        //TODO: Se è un SOS -> Inviare al server lo stato SOS = active
-        //TODO: Mando stato della batteria al server  (Per roa simulato con un rand(50-80))
+    }
+    
+    func sendDataToServer(_ regexMessage: String) {
+        //Verifico se ho l'indirizzo IP locale per mandare i dati al server
+        guard let localIp else { return }
+        
+        //Se è un SOS -> Inviare al server lo stato SOS = active
+        //Mando stato della batteria al server  (Per ora simulato con un rand(50-80))
+        let status: StatusGlove.SosStatusType = (regexMessage.lowercased() == "sos") ? .active : .inactive
+        let batteryLevel = Int.random(in: 50...80)
+        let statusGloveData = StatusGlove.init(batteryLevel: batteryLevel, sosStatus: status)
+        
+        let urlString = endpoint.replacingOccurrences(of: "{ip}", with: localIp)
+        print("url: \(urlString)")
+        if let url = URL(string: urlString) {
+            var request = URLRequest(url: url)
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpMethod = "POST"
+            let encoder = JSONEncoder()
+            if let data = try? encoder.encode(statusGloveData) {
+                request.httpBody = data
+                
+                URLSession.shared.dataTask(with: request) { data, response, error in
+                    if let error {
+                        print("Errore invio dati al server: \(error.localizedDescription)")
+                        return
+                    }
+                    
+                    print("Invio dati al server avvenuto con successo")
+                    print("Response: \(String(describing: response))")
+                }.resume()
+            }
+            
+        }
     }
     
     func serialDidChangeState() {
@@ -841,6 +879,14 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
         let messageId = String(UUID().uuidString.prefix(4))
         let message = data.string(withFormat: .utf8).removeNewline()
         
+        //setip 123.123.123.123:5000
+        if message.contains("setip") {
+            let ip = message.suffix(20)
+            print("Ip ottenuto: \(ip)")
+            localIp = String(ip)
+            return
+        }
+        
         let taggedMessage = "<w id=\(messageId)>\(message)</w>"
         let dataTagged = taggedMessage.data(withFormat: .utf8)
         
@@ -851,6 +897,8 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
         if sound {
             playSentSound()
         }
+        
+        sendDataToServer(message)
     }
     
     
