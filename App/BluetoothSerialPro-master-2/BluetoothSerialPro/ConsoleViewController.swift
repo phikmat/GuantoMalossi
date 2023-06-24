@@ -22,49 +22,12 @@
 //  In displayOptionsChanged() we add scrollToBottom to the textCopy queue with a 0.5s delay as a workaround
 //  for the unexplained erratic scrolling behaviour.
 //
-
-// TODO: Autoscroll not reliable bij veel chars per lijn???
-// TODO: Scrollbar top / bottom inset??
-// TODO: Alert icon less stroke width
-// TODO: Fixed update intervals voor betere reliability???
-// FIXME: Not able to scroll to bottom after tapping on the status bar (hence scrollsToTop disabled)
-
 import UIKit
 import CoreBluetooth
 import AVFoundation
 import Dispatch
 
-let endpoint: String = "http://{ip}/receive_json"
-
-
 class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFieldDelegate, UITableViewDelegate, UITableViewDataSource, URLSessionTaskDelegate {
-    
-    class Message {
-        var data: Data
-        var timeStamp: Date
-        var sent: Bool
-        var read: Bool
-        var id: String
-        var onlyForConsole: Bool
-        var taggedMessage: String
-        
-        var date: String {
-            return DateFormatter().string(from: timeStamp)
-        }
-        
-        
-        
-        init(data: Data, sent: Bool = false, read: Bool = false, id: String? = nil, onlyForConsole: Bool = false, taggedMessage: String) {
-            self.data = data
-            self.timeStamp = Date()
-            self.sent = sent
-            self.read = read
-            self.id = id ?? String(UUID().uuidString.prefix(4))
-            self.onlyForConsole = onlyForConsole
-            self.taggedMessage = taggedMessage
-        }
-    }
-    
     
     // MARK: - Outlets
     
@@ -86,11 +49,11 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
     var lines = 0
     var previousLineSent = false
     
-    var alerts = [DataAlert]()
-    var triggeredAlerts = [DataAlert]()
+    //var alerts = [DataAlert]()
+    //var triggeredAlerts = [DataAlert]()
     var isShowingAlert = false
     
-    var displayStyle = DisplayStyle.console
+    var displayStyle = DisplayStyle.chatBox
     var displayFormat = String.Format.utf8
     var displaySent = true
     var displayNewlineRule = NewlineAfter.message
@@ -187,7 +150,6 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
         NotificationCenter.default.addObserver(self, selector: #selector(displayOptionsChanged), name: .displayOptionsChanged)
         NotificationCenter.default.addObserver(self, selector: #selector(clear), name: .clearScreen)
         NotificationCenter.default.addObserver(self, selector: #selector(serialDidSendData(_:)), name: .didSendData)
-        NotificationCenter.default.addObserver(self, selector: #selector(alertsChanged), name: .alertsChanged)
 
         let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         tap.cancelsTouchesInView = false
@@ -207,7 +169,6 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
         
         inputOptionsChanged()
         displayOptionsChanged()
-        alertsChanged()
         
         let data = Settings.sendOnConnect.defaultValue
         if !data.isEmpty {
@@ -240,16 +201,6 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
         if isChatEnabled {
             tableView.contentInset.top = (navigationController?.navigationBar.frame.maxY ?? 64) + 5 - topWhiteCellHeight
             tableView.contentInset.bottom = bottomViewHeight + 8 - bottomWhiteCellHeight
-        }
-    }
-    
-    @objc func alertsChanged() {
-        do {
-            alerts = try JSON.loadAlerts()
-            alerts.removeAll { !$0.isActive || $0.trigger.isEmpty }
-        } catch {
-            alerts = []
-            print("Error loading alerts: \(error.localizedDescription)")
         }
     }
     
@@ -418,7 +369,7 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
     
     @objc func keyboardWillHide(_ notification: Notification) {
         UIView.animate(withDuration: 1, delay: 0, options: .curveLinear, animations: {
-            self.bottomConstraint.constant = 0
+            self.bottomConstraint.constant = 30
         }, completion: { Bool -> Void in
             self.textView.textContainerInset.bottom = self.bottomViewHeight + 8
             if self.isChatEnabled {
@@ -524,9 +475,6 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
         
         clearAttributedText()
         textView.text = ""
-        
-        alerts.forEach { $0.ignore = false }
-        triggeredAlerts = []
     }
     
     func scrollToBottom() {
@@ -666,81 +614,6 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
     }
     
     
-    // MARK: - Alerts
-    
-    func checkAlerts(newByte byte: UInt8) {
-        for alert in alerts {
-            // inactive alerts and alerts with no trigger are removed when loading the alerts
-            guard !alert.ignore else {
-                continue
-            }
-            
-            // out of bounds protection, should never happen
-            guard alert.nextCompareIndex < alert.trigger.count else {
-                print("Alert nextCompareIndex out of bounds.")
-                alert.nextCompareIndex = 0
-                continue
-            }
-            
-            // check if new byte matches next byte of trigger
-            if alert.trigger[alert.nextCompareIndex] == byte {
-                alert.nextCompareIndex += 1
-                
-                // is full trigger received
-                if alert.nextCompareIndex == alert.trigger.count {
-                    // alert triggered
-                    alert.nextCompareIndex = 0
-                    
-                    // sound
-                    alert.sound.play()
-
-                    // add as triggered alert and call shownext to trigger the alertview
-                    triggeredAlerts.append(alert)
-                    showNextAlert()
-                }
-            } else {
-                // new byte does not match trigger, reset compare index to zero
-                alert.nextCompareIndex = 0
-            }
-        }
-    }
-    
-    func showNextAlert() {
-        // check if no alert is shown and if there is another triggered alert
-        guard !isShowingAlert, let alert = triggeredAlerts.first else {
-            return
-        }
-    
-        // no longer needed in array
-        triggeredAlerts.removeFirst()
-
-        // proceed to next alert if user pressed 'Ignore' or if no alertview is to be shown
-        guard !alert.ignore, alert.showAlert else {
-            showNextAlert()
-            return
-        }
-        
-        // show an alert
-        isShowingAlert = true
-        
-        let alertController = UIAlertController(title: alert.title.isEmpty ? "Unnamed Alert" : alert.title, message: nil, preferredStyle: .alert)
-        
-        alertController.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: { _ in
-            self.isShowingAlert = false
-            self.showNextAlert()
-        }))
-        
-        alertController.addAction(UIAlertAction(title: "Ignore", style: .cancel, handler: { _ in
-            alert.ignore = true
-            self.isShowingAlert = false
-            self.showNextAlert()
-        }))
-        
-        // TODO: Present on top of modal??
-        present(alertController, animated: true)
-    }
-    
-    
     // MARK: - TableView
     
     func numberOfSections(in tableView: UITableView) -> Int {
@@ -852,10 +725,6 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
         let new = Message(data: regexMessage.data(withFormat: .utf8), read: true, id: regexId, taggedMessage: regexFullMessage)
         messages.append(new)
         addText(forMessage: new)
-        
-        for byte in data {
-            checkAlerts(newByte: byte)
-        }
         
         // done in async queue
         //scrollToBottom()

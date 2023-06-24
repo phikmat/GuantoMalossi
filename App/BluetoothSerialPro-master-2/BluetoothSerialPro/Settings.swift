@@ -37,7 +37,6 @@ enum NewlineAfter {
 enum Mode: Int {
     case console = 0
     case chatBox = 1
-    case serial = 2
 }
 
 enum DisplayStyle: Int {
@@ -86,7 +85,7 @@ class Settings {
     
     static let shouldPlaySounds = Preset<Bool>(key: "shouldPlaySounds", defaultValue: true)
     
-    static let mode = Preset<Int>(key: "mode", defaultValue: Mode.console.rawValue)
+    static let mode = Preset<Int>(key: "mode", defaultValue: Mode.chatBox.rawValue)
     
     static let maxChunkSize = Preset<Int>(key: "maxChunkSize", defaultValue: 50)
     

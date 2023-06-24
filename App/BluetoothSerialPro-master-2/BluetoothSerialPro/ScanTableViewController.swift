@@ -37,46 +37,8 @@ class ScanTableViewController: UITableViewController, BluetoothSerialDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-      /*  let fileManager = FileManager.default
-        var documentsURL = URL(string: "/System/Library/Audio/UISounds/")!
-        do {
-            let fileURLs = try fileManager.contentsOfDirectory(at: documentsURL, includingPropertiesForKeys: nil)
-            print(fileURLs)
-        } catch {
-            print("Error while enumerating files \(documentsURL.path): \(error.localizedDescription)")
-        }
-        
-        documentsURL = URL(string: "/System/Library/Audio/UISounds/nano/")!
-        do {
-            let fileURLs = try fileManager.contentsOfDirectory(at: documentsURL, includingPropertiesForKeys: nil)
-            print(fileURLs)
-        } catch {
-            print("Error while enumerating files \(documentsURL.path): \(error.localizedDescription)")
-        }
-        
-        documentsURL = URL(string: "/System/Library/Audio/UISounds/new/")!
-        do {
-            let fileURLs = try fileManager.contentsOfDirectory(at: documentsURL, includingPropertiesForKeys: nil)
-            print(fileURLs)
-        } catch {
-            print("Error while enumerating files \(documentsURL.path): \(error.localizedDescription)")
-        }
-        
-        documentsURL = URL(string: "/System/Library/Audio/UISounds/modern/")!
-        do {
-            let fileURLs = try fileManager.contentsOfDirectory(at: documentsURL, includingPropertiesForKeys: nil)
-            print(fileURLs)
-        } catch {
-            print("Error while enumerating files \(documentsURL.path): \(error.localizedDescription)")
-        }
-
-*/
-
-
-        
         NotificationCenter.default.addObserver(self, selector: #selector(appWillEnterForeground), name: .UIApplicationWillEnterForeground)
         NotificationCenter.default.addObserver(self, selector: #selector(appWillResignActive), name: .UIApplicationWillResignActive)
-        NotificationCenter.default.addObserver(self, selector: #selector(settingsChanged), name: .settingsChanged)
         NotificationCenter.default.addObserver(self, selector: #selector(activityIndicatorTouch), name: .activityIndicatorViewTouch)
         
         setNeedsStatusBarAppearanceUpdate()
@@ -99,13 +61,6 @@ class ScanTableViewController: UITableViewController, BluetoothSerialDelegate {
         
         // show update info for every new minor version (1.x.0)
         let bundleVersion = Version(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as! String)
-        let lastVersion = Version(Settings.lastVersionUpdateInfoShown.value)
-        
-        // TODO: Will show on first launch, no solution as of yet :(
-        if /*!Settings.isFirstLaunch.value && <- won't work in 1.2.0 because isFirstLaunch will always be true*/
-           (bundleVersion.major > lastVersion.major || bundleVersion.minor > lastVersion.minor) {
-            performSegue(withIdentifier: "showUpdateInfo", sender: self)
-        }
         
         Settings.isFirstLaunch.value = false
         Settings.lastVersionUpdateInfoShown.value = bundleVersion.stringValue // here to prevent showing at 2nd launch
@@ -119,19 +74,6 @@ class ScanTableViewController: UITableViewController, BluetoothSerialDelegate {
     
     @objc func appWillResignActive() {
         serialDidChangeState()
-    }
-    
-    @objc func settingsChanged() {
-        serial.serviceUUID = CBUUID(string: Settings.serviceUUID.value)
-        serial.readCharacteristicUUID = CBUUID(string: Settings.readCharacteristicUUID.value)
-        serial.writeCharacteristicUUID = CBUUID(string: Settings.writeCharacteristicUUID.value)
-
-        if serial.isScanning {
-            peripherals = []
-            tableView.reloadData()
-            serial.stopScan()
-            serial.startScan()
-        }
     }
     
     @objc func activityIndicatorTouch() {
@@ -335,20 +277,6 @@ class ScanTableViewController: UITableViewController, BluetoothSerialDelegate {
 
     
     // MARK: - Segues
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        super.prepare(for: segue, sender: sender)
-        if segue.identifier == "showAnalysis" {
-            inactivityTimer?.invalidate()
-            serial.stopScan()
-            let nv = segue.destination as! UINavigationController
-            let vc = nv.viewControllers.first as! DeviceAnalysisTableViewController
-            let pr = peripherals[tableView.indexPath(for: sender as! UITableViewCell)!.row]
-            vc.peripheral = pr.peripheral
-            vc.advertisementDataDict = pr.ad
-        }
-    }
-    
     @IBAction func unwindToScan(_ segue: UIStoryboardSegue) {
         if let source = segue.source as? SerialViewController, source.disconnectWasUserTriggered {
             lastUserTriggeredDisconnect = Date()

@@ -34,12 +34,9 @@ extension NotificationCenter {
 
 extension Notification.Name {
     static let disconnected = Notification.Name("disconnected")
-    static let settingsChanged = Notification.Name("settingsChanged")
     static let inputOptionsChanged = Notification.Name("inputOptionsChanged")
     static let displayOptionsChanged = Notification.Name("displayOptionsChanged")
-    static let alertsChanged = Notification.Name("alertsChanged")
     static let clearScreen = Notification.Name("clearScreen")
-    static let functionsChanged = Notification.Name("functionsChanged")
     static let didSendData = Notification.Name("didSendData")
 }
 

@@ -60,55 +60,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         Settings.migrateToLatest()
         return true
     }
-
-    func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
-        // note: there's a copy of this in the function options screen
-
-        func importFunctions(replace: Bool) {
-            do {
-                // try to load & save (takes care of migration too)
-                let imported = try JSON.loadFunctions(url: url)
-                
-                if replace {
-                    try JSON.saveFunctions(imported)
-                } else {
-                    let existing = try JSON.loadFunctions()
-                    var i = existing.count
-                    imported.forEach { $0.order = i; i += 1; }
-                    try JSON.saveFunctions(existing + imported)
-                }
-                
-                let alert = UIAlertController(title: "Success", message: "Imported \(imported.count) Functions", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: nil))
-                present(alert, animated: true)
-                
-                NotificationCenter.default.post(name: .functionsChanged)
-            } catch {
-                print("Failed to import: \(error.localizedDescription)")
-                let alert = UIAlertController(title: "Failed to load functions", message: error.localizedDescription, preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: nil))
-                present(alert, animated: true)
-            }
-        }
-        
-        func add(_: UIAlertAction) {
-            importFunctions(replace: false)
-        }
-        func replace(_: UIAlertAction) {
-            importFunctions(replace: true)
-        }
-        
-        // create alert
-        let alert = UIAlertController(title: "Import Functions", message: "Add to existing functions or replace all? This cannot be undone.", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        alert.addAction(UIAlertAction(title: "Add", style: .default, handler: add))
-        alert.addAction(UIAlertAction(title: "Replace", style: .destructive, handler: replace))
-        
-        // present
-        present(alert, animated: true)
-
-        return true
-    }
     
     private func present(_ viewController: UIViewController, animated: Bool, completion: (() -> Void)? = nil) {
         // create temporary window, will be deallocated automatcially after dismissal
