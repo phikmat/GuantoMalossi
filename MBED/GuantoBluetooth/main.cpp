@@ -47,33 +47,30 @@ AnalogIn zPiezo(A2);
 //TODO: Sostituire i led 
 PwmOut aSensor(D3);
 PwmOut bSensor(D5);
-DigitalOut cSensor(D6);
-DigitalOut dSensor(D6);
-DigitalOut eSensor(D6);
-DigitalOut fSensor(D6);
-DigitalOut gSensor(D6);
-DigitalOut hSensor(D6);
-DigitalOut iSensor(D6);
-DigitalOut lSensor(D6);
-DigitalOut mSensor(D6);
-DigitalOut nSensor(D6);
-DigitalOut oSensor(D6);
-DigitalOut pSensor(D6);
-DigitalOut qSensor(D6);
-DigitalOut rSensor(D6);
-DigitalOut sSensor(D6);
-DigitalOut tSensor(D6);
-DigitalOut uSensor(D6);
-DigitalOut vSensor(D6);
-DigitalOut zSensor(D6);
+PwmOut cSensor(D6);
+PwmOut dSensor(D6);
+PwmOut eSensor(D6);
+PwmOut fSensor(D6);
+PwmOut gSensor(D6);
+PwmOut hSensor(D6);
+PwmOut iSensor(D6);
+PwmOut lSensor(D6);
+PwmOut mSensor(D6);
+PwmOut nSensor(D6);
+PwmOut oSensor(D6);
+PwmOut pSensor(D6);
+PwmOut qSensor(D6);
+PwmOut rSensor(D6);
+PwmOut sSensor(D6);
+PwmOut tSensor(D6);
+PwmOut uSensor(D6);
+PwmOut vSensor(D6);
+PwmOut zSensor(D6);
 
 DigitalIn buttonInvia(BUTTON1);
 
-float frequency = 200;
-float dutyCycle = 0.5;
-
-float frequencyMini = 1000;
-float dutyCycleMini = 0.5;
+float frequency = 200; // Vibration frequency in Hz
+float dutyCycle = 0.5; // Duty cycle (0.0 to 1.0)
 
 string outputMessage = "";
 
@@ -103,7 +100,7 @@ std::string gen_random(const int len) {
 
 // Invia dei messaggi al modulo Bluetooth
 void write(string messageStr) {
-    string messageId = gen_random(6);                               //Genero un id randomico formato da 6 caratteri alfanumerici
+    string messageId = gen_random(4);                               //Genero un id randomico formato da 4 caratteri alfanumerici
     string welcomeMessage = "<w id=" + messageId + ">";             //Mi costruisco il tag di tipo write con l'id del messaggio <w id=000000>
     welcomeMessage += messageStr;                                   //Inserisco il contenuto del messaggio nel tag <w id=000000>Messagio da inviare
     welcomeMessage += "</w>";                                       //Chiudo il tag <w id=000000>Messagio da inviare</w>
@@ -127,10 +124,10 @@ void resetTicker() {
     timer.attach(seperaParole, 4000ms);
 }
 
-void writeValueIfNeed() {
+void writeValueIfNeed() { //funzione per la scrittura dal guanto all'app
     
     if (buttonInvia == 0 && !outputMessage.empty()) {
-        //Se premuto più di 3 secondi -> Invio stringa "SOS"
+        //TODO: Se premuto più di 3 secondi -> Invio stringa "SOS"
         timer.detach();
         string temp = outputMessage;
         write(temp);
@@ -140,7 +137,7 @@ void writeValueIfNeed() {
         return;
     }
 
-    if (aPiezo > 0.75f) {
+    if (aPiezo > 0.75f) {    //0.75 è la soglia che identifica l'input della persona sordocieca
         outputMessage += 'a';
         printf("A value: %f\n", aPiezo.read()*1.0f);
         resetTicker();
@@ -154,11 +151,146 @@ void writeValueIfNeed() {
         ThisThread::sleep_for(400ms);
     } 
 
+
+    if (cPiezo > 0.75f) {
+        outputMessage += 'c';
+        printf("C value: %f\n", cPiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    }
+    
+    if (dPiezo > 0.75f) {
+        outputMessage += 'd';
+        printf("D value: %f\n", dPiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    }
+    
+    if (ePiezo > 0.75f) {
+        outputMessage += 'e';
+        printf("E value: %f\n", ePiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    }
+    
+    if (fPiezo > 0.75f) {
+        outputMessage += 'f';
+        printf("F value: %f\n", fPiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    }
+    
+    if (gPiezo > 0.75f) {
+        outputMessage += 'g';
+        printf("G value: %f\n", gPiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    } 
+    
+    if (hPiezo > 0.75f) {
+        outputMessage += 'h';
+        printf("H value: %f\n", hPiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    }
+    
+    if (iPiezo > 0.75f) {
+        outputMessage += 'i';
+        printf("I value: %f\n", iPiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    }
+    
+    if (lPiezo > 0.75f) {
+        outputMessage += 'l';
+        printf("L value: %f\n", lPiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    }
+    
+    if (mPiezo > 0.75f) {
+        outputMessage += 'm';
+        printf("M value: %f\n", mPiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    }
+    
+    if (nPiezo > 0.75f) {
+        outputMessage += 'n';
+        printf("N value: %f\n", nPiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    }
+    
+    if (oPiezo > 0.75f) {
+        outputMessage += 'o';
+        printf("O value: %f\n", oPiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    }
+    
+    if (pPiezo > 0.75f) {
+        outputMessage += 'p';
+        printf("P value: %f\n", pPiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    }
+    
+    if (qPiezo > 0.75f) {
+        outputMessage += 'q';
+        printf("Q value: %f\n", qPiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    }
+    
+    if (rPiezo > 0.75f) {
+        outputMessage += 'r';
+        printf("R value: %f\n", rPiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    }
+    
+    if (sPiezo > 0.75f) {
+        outputMessage += 's';
+        printf("S value: %f\n", sPiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    }
+    
+    if (tPiezo > 0.75f) {
+        outputMessage += 't';
+        printf("T value: %f\n", tPiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    }
+    
+    if (uPiezo > 0.75f) {
+        outputMessage += 'u';
+        printf("U value: %f\n", uPiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    }
+    
+    if (vPiezo > 0.75f) {
+        outputMessage += 'v';
+        printf("V value: %f\n", vPiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    }
+    
+    if (zPiezo > 0.75f) {
+        outputMessage += 'z';
+        printf("Z value: %f\n", zPiezo.read()*1.0f);
+        resetTicker();
+        ThisThread::sleep_for(400ms);
+    }
+  
+
 }
 
-void valueToGuanto(char c) {
+void valueToGuanto(char c) { //funzione per la lettura dall'app al guanto
 
-    if (c == 'a' || c == 'A') {
+    if (c == 'a' || c == 'A') { //ogni if fa vibrare il vibration motor della lettera corrispondente
         aSensor.resume();
         aSensor.write(dutyCycle);
         ThisThread::sleep_for(500ms);
@@ -170,6 +302,120 @@ void valueToGuanto(char c) {
         ThisThread::sleep_for(500ms);
         bSensor.write(0);
         bSensor.suspend();
+    }else if (c == 'c' || c == 'C') {
+        cSensor.resume();
+        cSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        cSensor.write(0);
+        cSensor.suspend();
+    }else if (c == 'd' || c == 'D') {
+        dSensor.resume();
+        dSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        dSensor.write(0);
+        dSensor.suspend();
+    }else if (c == 'e' || c == 'E') {
+        eSensor.resume();
+        eSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        eSensor.write(0);
+        eSensor.suspend();
+    }else if (c == 'f' || c == 'F') {
+        fSensor.resume();
+        fSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        fSensor.write(0);
+        fSensor.suspend();
+    }else if (c == 'g' || c == 'G') {
+        gSensor.resume();
+        gSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        gSensor.write(0);
+        gSensor.suspend();
+    }else if (c == 'h' || c == 'H') {
+        hSensor.resume();
+        hSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        hSensor.write(0);
+        hSensor.suspend();
+    }else if (c == 'i' || c == 'I') {
+        iSensor.resume();
+        iSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        iSensor.write(0);
+        iSensor.suspend();
+    }else if (c == 'l' || c == 'L') {
+        lSensor.resume();
+        lSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        lSensor.write(0);
+        lSensor.suspend();
+    }else if (c == 'm' || c == 'M') {
+        mSensor.resume();
+        mSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        mSensor.write(0);
+        mSensor.suspend();
+    }else if (c == 'n' || c == 'N') {
+        nSensor.resume();
+        nSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        nSensor.write(0);
+        nSensor.suspend();
+    }else if (c == 'o' || c == 'O') {
+        oSensor.resume();
+        oSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        oSensor.write(0);
+        oSensor.suspend();
+    }else if (c == 'p' || c == 'P') {
+        pSensor.resume();
+        pSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        pSensor.write(0);
+        pSensor.suspend();
+    }else if (c == 'q' || c == 'Q') {
+        qSensor.resume();
+        qSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        qSensor.write(0);
+        qSensor.suspend();
+    }else if (c == 'r' || c == 'R') {
+        rSensor.resume();
+        rSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        rSensor.write(0);
+        rSensor.suspend();
+    }else if (c == 's' || c == 'S') {
+        sSensor.resume();
+        sSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        sSensor.write(0);
+        sSensor.suspend();
+    }else if (c == 't' || c == 'T') {
+        tSensor.resume();
+        tSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        tSensor.write(0);
+        tSensor.suspend();
+    }else if (c == 'u' || c == 'U') {
+        uSensor.resume();
+        uSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        uSensor.write(0);
+        uSensor.suspend();
+    }else if (c == 'v' || c == 'V') {
+        vSensor.resume();
+        vSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        vSensor.write(0);
+        vSensor.suspend();
+    }else if (c == 'z' || c == 'Z') {
+        zSensor.resume();
+        zSensor.write(dutyCycle);
+        ThisThread::sleep_for(500ms);
+        zSensor.write(0);
+        zSensor.suspend();
     }
 
 
@@ -209,7 +455,7 @@ void readValueIfNeed() {
 
    //ThisThread::sleep_for(500ms);
 
-    //Verifico che il modulo bluetooth sia in collegato correttamente e in modalità lettura abilitata
+    //Verifico che il modulo bluetooth sia collegato correttamente e in modalità lettura abilitata
     if(bluetooth.readable() && !isWriting){
         //Leggo una frase che ho ricevuto dal modulo bluetooth
         bluetooth.read(&buffer, MAX_BUFFER_SIZE);
@@ -221,7 +467,7 @@ void readValueIfNeed() {
         }
 
         //Recupero l'ID del messaggio
-        regex regexId(".*id=([^>]+)>([^<]+).*");
+        regex regexId(".id=([^>]+)>([^<]+).");
         smatch message; 
         regex_search(fullMessage, message, regexId); 
         idMessage += message[1];
@@ -245,10 +491,10 @@ void readValueIfNeed() {
                 //attendo 1 secondo tra una parola ed un'altra
                 ThisThread::sleep_for(1s);
             } else if (c == ',') {  //Verifico se è una virgola
-                //attendo 2 secondo di pausa per la virgola
+                //attendo 2 secondi di pausa per la virgola
                 ThisThread::sleep_for(2s);
             } else if (c == '.') {  //Verifico se è un punto
-                //attendo 4 secondo di pausa tra una frase ed un'altra
+                //attendo 4 secondi di pausa tra una frase ed un'altra
                 ThisThread::sleep_for(4s);
             }
             
@@ -269,7 +515,7 @@ int main() {
     bluetooth.set_baud(9600);
     pc.set_baud(9600);
 
-    aSensor.period(1.0 / frequency);
+    aSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
     aSensor.suspend();
 
     bSensor.period(1.0 / frequency);
@@ -292,5 +538,3 @@ int main() {
     }
 
 }
-
-

@@ -45,15 +45,23 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
         var sent: Bool
         var read: Bool
         var id: String
-        var date: String
+        var onlyForConsole: Bool
+        var taggedMessage: String
         
-        init(data: Data, sent: Bool = false, read: Bool = false, id: String? = nil) {
+        var date: String {
+            return DateFormatter().string(from: timeStamp)
+        }
+        
+        
+        
+        init(data: Data, sent: Bool = false, read: Bool = false, id: String? = nil, onlyForConsole: Bool = false, taggedMessage: String) {
             self.data = data
             self.timeStamp = Date()
             self.sent = sent
             self.read = read
             self.id = id ?? String(UUID().uuidString.prefix(4))
-            self.date = DateFormatter().string(from: Date())
+            self.onlyForConsole = onlyForConsole
+            self.taggedMessage = taggedMessage
         }
     }
     
@@ -204,11 +212,11 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
         let data = Settings.sendOnConnect.defaultValue
         if !data.isEmpty {
             
-            let taggedMessage = "<i id=000>" + data.string(withFormat: .utf8).removeNewline() + "</i>"
+            let taggedMessage = "<i id=0000>" + data.string(withFormat: .utf8).removeNewline() + "</i>"
             let dataTagged = taggedMessage.data(withFormat: .utf8)
             
-            serial.sendDataToDevice(dataTagged)
-            messages.append(Message(data: data, sent: true, id: "000"))
+            //serial.sendDataToDevice(dataTagged)
+            messages.append(Message(data: data, sent: false, id: "0000", taggedMessage: taggedMessage))
             addText(forMessage: messages.last!)
             scrollToBottom()
             playSentSound()
@@ -448,6 +456,17 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
                 let ip = message.suffix(20)
                 print("Ip ottenuto: \(ip)")
                 localIp = String(ip)
+                let extraConsoleMessage = "Ip setted: "+String(ip)
+                
+                messages.append(Message(data: message.data(withFormat: .utf8), sent: true, id: messageId, onlyForConsole: true, taggedMessage: message))
+                addText(forMessage: messages.last!)
+                
+                messages.append(Message(data: extraConsoleMessage.data(withFormat: .utf8), sent: false, id: messageId+"i", onlyForConsole: true, taggedMessage: extraConsoleMessage))
+                addText(forMessage: messages.last!)
+                
+                scrollToBottom()
+                playSentSound()
+                
                 textField.text = ""
                 return false
             }
@@ -456,7 +475,7 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
             let dataTagged = taggedMessage.data(withFormat: .utf8)
             
             serial.sendDataToDevice(dataTagged)
-            messages.append(Message(data: message.data(withFormat: .utf8), sent: true, id: messageId))
+            messages.append(Message(data: message.data(withFormat: .utf8), sent: true, id: messageId, taggedMessage: taggedMessage))
             addText(forMessage: messages.last!)
             scrollToBottom()
             playSentSound()
@@ -511,6 +530,7 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
     }
     
     func scrollToBottom() {
+        let messages = self.messages.compactMap({return $0.onlyForConsole ? nil : $0})
         guard autoScroll else { return }
         if isChatEnabled {
             guard !messages.isEmpty else { return }
@@ -525,11 +545,12 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
     }
     
     func addText(forMessage msg: Message, updateTableView: Bool = true) {
+        let messages = self.messages.compactMap({return $0.onlyForConsole ? nil : $0})
         if !displaySent && msg.sent {
             return
         }
         
-        if isChatEnabled && updateTableView {
+        if isChatEnabled && updateTableView && !msg.onlyForConsole {
             tableView.insertRows(at: [IndexPath(row: messages.count, section: 0)], with: .none) // not min one cuz of extra white celll
             //return - Still add text to textview for sharesheet function!
         }
@@ -571,7 +592,7 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
                 bytesOnLine = 0
             }
             addLineHeader()
-            string += msg.data.string(withFormat: displayFormat).removeNewline() + "\n"
+            string += msg.taggedMessage.removeNewline() + "\n"
             append(string: string, attributes: sentAttributes)
             return
         }
@@ -579,7 +600,7 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
         switch displayNewlineRule {
         case .message:
             addLineHeader()
-            string += msg.data.string(withFormat: displayFormat).removeNewline() /*+ "\n"*/
+            string += msg.taggedMessage.removeNewline() /*+ "\n"*/
             
         case .count(let max):
             for b in msg.data {
@@ -727,10 +748,12 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        let messages = self.messages.compactMap({return $0.onlyForConsole ? nil : $0})
         return messages.count + 2
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let messages = self.messages.compactMap({return $0.onlyForConsole ? nil : $0})
         if indexPath.row == 0 || indexPath.row == messages.count+1 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "whiteCell", for: indexPath)
             cell.selectionStyle = .none
@@ -744,6 +767,7 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        let messages = self.messages.compactMap({return $0.onlyForConsole ? nil : $0})
         if indexPath.row == 0 || indexPath.row == messages.count+1 {
             return indexPath.row == 0 ? topWhiteCellHeight : bottomWhiteCellHeight
         } else {
@@ -752,6 +776,7 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
     }
     
     func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        let messages = self.messages.compactMap({return $0.onlyForConsole ? nil : $0})
         if indexPath.row == 0 || indexPath.row == messages.count+1 {
             return indexPath.row == 0 ? topWhiteCellHeight : bottomWhiteCellHeight
         } else {
@@ -773,6 +798,7 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
             cleanedMessage = bufferedMessage + cleanedMessage
         }
         
+        var regexFullMessage: String = ""
         var regexId: String = ""
         var regexMessage: String = ""
         var regexMessageType: String = ""
@@ -785,6 +811,11 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
         
         
         if let match = matches.first {
+            let rangeFullMessage = match.range(at:0)
+            if let swiftRangeFullMessage = Range(rangeFullMessage, in: cleanedMessage) {
+                regexFullMessage = String(cleanedMessage[swiftRangeFullMessage])
+            }
+            
             let rangeId = match.range(at:1)
             if let swiftRangeId = Range(rangeId, in: cleanedMessage) {
                 regexId = String(cleanedMessage[swiftRangeId])
@@ -805,6 +836,10 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
                 let savedMessage = messages.first(where: { return $0.id == regexId})
                 savedMessage?.read = true
                 
+                let readNotificationMessage = Message(data: regexMessage.data(withFormat: .utf8), read: true, id: regexId+"r", onlyForConsole: true, taggedMessage: regexFullMessage)
+                messages.append(readNotificationMessage)
+                addText(forMessage: readNotificationMessage)
+                
                 return
             }
             
@@ -814,7 +849,7 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
         }
                         
         //----------------
-        let new = Message(data: regexMessage.data(withFormat: .utf8), read: true, id: regexId)
+        let new = Message(data: regexMessage.data(withFormat: .utf8), read: true, id: regexId, taggedMessage: regexFullMessage)
         messages.append(new)
         addText(forMessage: new)
         
@@ -884,13 +919,20 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
             let ip = message.suffix(20)
             print("Ip ottenuto: \(ip)")
             localIp = String(ip)
+            let extraConsoleMessage = "Ip setted: "+String(ip)
+            
+            messages.append(Message(data: message.data(withFormat: .utf8), sent: true, id: messageId, onlyForConsole: true, taggedMessage: message))
+            messages.append(Message(data: extraConsoleMessage.data(withFormat: .utf8), sent: false, id: messageId+"i", onlyForConsole: true, taggedMessage: extraConsoleMessage))
+            addText(forMessage: messages.last!)
+            scrollToBottom()
+            playSentSound()
+            
             return
         }
         
         let taggedMessage = "<w id=\(messageId)>\(message)</w>"
-        let dataTagged = taggedMessage.data(withFormat: .utf8)
         
-        messages.append(Message(data: message.data(withFormat: .utf8), sent: true, id: messageId))
+        messages.append(Message(data: message.data(withFormat: .utf8), sent: true, id: messageId, taggedMessage: taggedMessage))
         addText(forMessage: messages.last!)
         
         let sound = notification.userInfo!["playSound"] as! Bool
