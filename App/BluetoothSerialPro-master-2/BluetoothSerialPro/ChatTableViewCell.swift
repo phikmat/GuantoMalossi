@@ -15,11 +15,19 @@ fileprivate let bubbleAngleWidth: CGFloat = 6
 fileprivate let outgoingColor = UIColor(red: 229/255, green: 229/255, blue: 234/255, alpha: 1)
 fileprivate let cornerRadius: CGFloat = 16
 
+fileprivate let readTextHeight: CGFloat = 20
+
 class ChatTableViewCell: UITableViewCell {
-    private let label = UILabel()
+    private let label = KGCopyableLabel()
+    private let statusLabel = UILabel()
     private var bubbleLayer: CAShapeLayer?
     var messageText = ""
-    var isSent = false
+    var isRead: Bool = false
+    var isSent = false {
+        didSet {
+            addStatusLabelIfNeed()
+        }
+    }
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: .default, reuseIdentifier: reuseIdentifier)
@@ -37,6 +45,16 @@ class ChatTableViewCell: UITableViewCell {
         label.font = UIFont.systemFont(ofSize: 15)
         label.numberOfLines = 0
         contentView.addSubview(label)
+        
+        statusLabel.tag = 123
+        statusLabel.font = UIFont.systemFont(ofSize: 10)
+        statusLabel.numberOfLines = 1
+    }
+    
+    func addStatusLabelIfNeed() {
+        if (isSent && !contentView.subviews.contains(where: {$0.tag == 123})) {
+            contentView.addSubview(statusLabel)
+        }
     }
     
     override func layoutSubviews() {
@@ -44,7 +62,7 @@ class ChatTableViewCell: UITableViewCell {
         
         let tw = ChatTableViewCell.calculateWidth(forText: messageText)
         let w: CGFloat = tw - textLeftMargin*2 - bubbleAngleWidth
-        let h: CGFloat = bounds.height - textTopMargin*2
+        let h: CGFloat = bounds.height - textTopMargin*2 - (isSent ? readTextHeight : 0)
         let x: CGFloat = isSent ? bounds.width - tw + textLeftMargin : textLeftMargin + bubbleAngleWidth
         let y: CGFloat = textTopMargin
         label.frame = CGRect(x: x, y: y, width: w, height: h)
@@ -52,10 +70,20 @@ class ChatTableViewCell: UITableViewCell {
         label.textAlignment = isSent ? .right : .left
         label.textColor = isSent ? UIColor.black : UIColor.white
         
+        if (isSent) {
+            let sW: CGFloat = 40
+            let sX = bounds.width - sW - textLeftMargin
+            let sY = textTopMargin + h
+            statusLabel.frame = CGRect(x: sX, y: sY, width: sW, height: readTextHeight)
+            statusLabel.text = isRead ? "Letto" : "Inviato"
+            statusLabel.textAlignment = .right
+            statusLabel.textColor = UIColor.black
+        }
+        
         let px: CGFloat = isSent ? bounds.width - tw : bubbleAngleWidth
         let py: CGFloat = bubbleTopMargin
         let pw: CGFloat = tw - bubbleAngleWidth
-        let ph: CGFloat = bounds.height - bubbleTopMargin*2
+        let ph: CGFloat = bounds.height - bubbleTopMargin*2 - (isSent ? readTextHeight : 0)
         let pm: CGFloat = bubbleAngleWidth/4
         let pd: CGFloat = sqrt(pow(cornerRadius, 2)/2)
         let path = UIBezierPath()
@@ -129,14 +157,14 @@ class ChatTableViewCell: UITableViewCell {
 }
 
 extension ChatTableViewCell {
-    class func calculateHeight(forText text: String) -> CGFloat {
+    class func calculateHeight(forText text: String, isSent: Bool) -> CGFloat {
         let nss = NSString(string: text)
         let textRect = nss.boundingRect(with: CGSize(width: CGFloat(UIScreen.main.bounds.width*0.65), height: CGFloat(MAXFLOAT)),
                                      options: .usesLineFragmentOrigin,
                                   attributes: [NSAttributedStringKey.font: UIFont.systemFont(ofSize: 15)/*,
                                                NSParagraphStyleAttributeName: paragraphStyle*/],
                                      context: nil)
-        return max(textRect.height + textTopMargin*2, cornerRadius*2 + bubbleTopMargin*2)
+        return max(textRect.height + textTopMargin*2, cornerRadius*2 + bubbleTopMargin*2) + (isSent ? readTextHeight : 0)
     }
     
     class func calculateWidth(forText text: String) -> CGFloat {

@@ -501,6 +501,10 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
         if isChatEnabled && updateTableView && !msg.onlyForConsole {
             tableView.insertRows(at: [IndexPath(row: messages.count, section: 0)], with: .none) // not min one cuz of extra white celll
             //return - Still add text to textview for sharesheet function!
+        } else if isChatEnabled && updateTableView,
+                  let index = messages.firstIndex(where: {msg.id == $0.id+"r"}) {
+            let indexPath = IndexPath.init(row: index+1, section: 0)
+            tableView.reloadRows(at: [indexPath], with: .automatic)
         }
         
         queues.textUpdate.async {
@@ -635,6 +639,7 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
             let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! ChatTableViewCell
             cell.messageText = messages[indexPath.row-1].data.string(withFormat: displayFormat).removeNewline()
             cell.isSent = messages[indexPath.row-1].sent
+            cell.isRead = messages[indexPath.row-1].read
             return cell
         }
     }
@@ -644,7 +649,7 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
         if indexPath.row == 0 || indexPath.row == messages.count+1 {
             return indexPath.row == 0 ? topWhiteCellHeight : bottomWhiteCellHeight
         } else {
-            return ChatTableViewCell.calculateHeight(forText: messages[indexPath.row-1].data.string(withFormat: displayFormat).removeNewline())
+            return ChatTableViewCell.calculateHeight(forText: messages[indexPath.row-1].data.string(withFormat: displayFormat).removeNewline(), isSent: messages[indexPath.row-1].sent)
         }
     }
     
@@ -653,7 +658,7 @@ class ConsoleViewController: UIViewController, BluetoothSerialDelegate, UITextFi
         if indexPath.row == 0 || indexPath.row == messages.count+1 {
             return indexPath.row == 0 ? topWhiteCellHeight : bottomWhiteCellHeight
         } else {
-            return ChatTableViewCell.calculateHeight(forText: messages[indexPath.row-1].data.string(withFormat: displayFormat).removeNewline())
+            return ChatTableViewCell.calculateHeight(forText: messages[indexPath.row-1].data.string(withFormat: displayFormat).removeNewline(), isSent: messages[indexPath.row-1].sent)
         }
     }
     

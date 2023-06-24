@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		6C384B862A473A2A001E23C7 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C384B852A473A2A001E23C7 /* Constants.swift */; };
 		6C384B882A473A51001E23C7 /* Message.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C384B872A473A51001E23C7 /* Message.swift */; };
+		6C384B8A2A474E57001E23C7 /* KGCopyableLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C384B892A474E57001E23C7 /* KGCopyableLabel.swift */; };
 		6C4FCAC12A45A651004ED1C2 /* data.json in Resources */ = {isa = PBXBuildFile; fileRef = 6C4FCAC02A45A651004ED1C2 /* data.json */; };
 		6C4FCAC32A45A8A9004ED1C2 /* StatusGlove.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C4FCAC22A45A8A9004ED1C2 /* StatusGlove.swift */; };
 		FA010F981E6030F000D759C3 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA010F971E6030F000D759C3 /* Settings.swift */; };
@@ -46,6 +47,7 @@
 /* Begin PBXFileReference section */
 		6C384B852A473A2A001E23C7 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Constants.swift; path = ../../../../Constants.swift; sourceTree = "<group>"; };
 		6C384B872A473A51001E23C7 /* Message.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Message.swift; sourceTree = "<group>"; };
+		6C384B892A474E57001E23C7 /* KGCopyableLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KGCopyableLabel.swift; sourceTree = "<group>"; };
 		6C4FCAC02A45A651004ED1C2 /* data.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = data.json; sourceTree = "<group>"; };
 		6C4FCAC22A45A8A9004ED1C2 /* StatusGlove.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusGlove.swift; sourceTree = "<group>"; };
 		FA010F971E6030F000D759C3 /* Settings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
@@ -137,6 +139,7 @@
 			children = (
 				FA29E4491E5C51DF002D3F7B /* ChatTableViewCell.swift */,
 				FAF7F95E1E6D589D00E49E2A /* FormattedTextField.swift */,
+				6C384B892A474E57001E23C7 /* KGCopyableLabel.swift */,
 				FAA756411E8146F200CD22BC /* ProgressHUD */,
 			);
 			name = Components;
@@ -307,6 +310,7 @@
 				FA688087209C534100C14FF0 /* Version.swift in Sources */,
 				FA3A44B61E5B2B580029EFE8 /* Extensions.swift in Sources */,
 				FA010F981E6030F000D759C3 /* Settings.swift in Sources */,
+				6C384B8A2A474E57001E23C7 /* KGCopyableLabel.swift in Sources */,
 				FA5EDEBF1DEAEDBE0090CECE /* ScanTableViewController.swift in Sources */,
 				FA5EDEAB1DEAEB040090CECE /* AppDelegate.swift in Sources */,
 				FA29E44A1E5C51DF002D3F7B /* ChatTableViewCell.swift in Sources */,
