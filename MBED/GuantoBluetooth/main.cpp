@@ -22,50 +22,53 @@ BufferedSerial bluetooth(D8, D2); // RX, TX pins for HC-10 Bluetooth modu
 BufferedSerial pc(USBTX, USBRX); // RX, TX pins for pc
 
 //Input
-AnalogIn aPiezo(A0);
+//7 lettere in meno
+AnalogIn aPiezo(A0);    //OK -> ADC1/O
 //AnalogIn bPiezo(A1);
-AnalogIn cPiezo(A1);
-AnalogIn dPiezo(A2);
-AnalogIn ePiezo(A3);
+AnalogIn cPiezo(A1);    //OK -> ADC1/1
+AnalogIn dPiezo(A2);    //OK -> ADC1/4
+AnalogIn ePiezo(A3);    //OK -> ADC1/8
 //AnalogIn fPiezo(A2);
-AnalogIn gPiezo(A4);
+//AnalogIn gPiezo(A4);    
 //AnalogIn hPiezo(A2);
-AnalogIn iPiezo(D0);
-AnalogIn lPiezo(D1);
-AnalogIn mPiezo(D11);
-AnalogIn nPiezo(D12);
-AnalogIn oPiezo(D13);
-AnalogIn pPiezo(PB_1);
-//AnalogIn qPiezo(A2);
-AnalogIn rPiezo(PC_2);
-AnalogIn sPiezo(PC_3);
-AnalogIn tPiezo(PC_4);
-AnalogIn uPiezo(PC_5);
-AnalogIn vPiezo(A5);
+AnalogIn iPiezo(A5);    //OK -> ADC1/10
+AnalogIn lPiezo(A4);    //OK -> ADC1/11
+AnalogIn mPiezo(D11);   //OK -> ADC1/7
+AnalogIn nPiezo(D12);   //OK -> ADC1/6
+AnalogIn oPiezo(D13);   //OK -> ADC1/5
+AnalogIn pPiezo(PB_1);  //OK -> ADC1/9
+//AnalogIn qPiezo(A2);  
+AnalogIn rPiezo(PC_2);  //OK -> ADC1/12
+AnalogIn sPiezo(PC_3);  //OK -> ADC1/13
+AnalogIn tPiezo(PC_4);  //OK -> ADC1/14
+AnalogIn uPiezo(PC_5);  //OK -> ADC1/15
+//AnalogIn vPiezo(A0);  
 //AnalogIn zPiezo(A2);
 
- 
+//Output 
+//5 lettere in meno
 PwmOut aSensor(PC_8);
-//PwmOut bSensor(D5);
-PwmOut cSensor(PC_6);
-PwmOut dSensor(PA_11);
+////PwmOut bSensor(D5);
+PwmOut cSensor(PC_6);     
+PwmOut dSensor(PA_11);      
 PwmOut eSensor(D10);
-//PwmOut fSensor(D6);
+//PwmOut fSensor(D14);        //Funzionerebbe con D14, manca componente fisica
 PwmOut gSensor(PB_15);
-//PwmOut hSensor(D6);
+//PwmOut hSensor(D15);        //Funzionerebbe con D15, manca componente fisica
 PwmOut iSensor(PB_14);
 PwmOut lSensor(PB_13);
-PwmOut mSensor(PA_13);
+PwmOut mSensor(PC_9);        //Sostituisco con PC_9 al posto di PA_13
 PwmOut nSensor(PA_15);
 PwmOut oSensor(PB_7);
 PwmOut pSensor(D4);
-//PwmOut qSensor(D6);
+////PwmOut qSensor(D6);
 PwmOut rSensor(D3);
 PwmOut sSensor(D5);
 PwmOut tSensor(D6);
 PwmOut uSensor(D7);
 PwmOut vSensor(D9);
-//PwmOut zSensor(D6);
+////PwmOut zSensor(D6);
+
 
 DigitalIn buttonInvia(PC_13);
 
@@ -182,7 +185,6 @@ void writeValueIfNeed() { //funzione per la scrittura dal guanto all'app
         resetTicker();
         ThisThread::sleep_for(400ms);
     }
-    */
     
     if (gPiezo > 0.75f) {
         outputMessage += 'g';
@@ -191,7 +193,6 @@ void writeValueIfNeed() { //funzione per la scrittura dal guanto all'app
         ThisThread::sleep_for(400ms);
     } 
     
-    /*
     if (hPiezo > 0.75f) {
         outputMessage += 'h';
         printf("H value: %f\n", hPiezo.read()*1.0f);
@@ -199,6 +200,7 @@ void writeValueIfNeed() { //funzione per la scrittura dal guanto all'app
         ThisThread::sleep_for(400ms);
     }
     */
+    
     
     if (iPiezo > 0.75f) {
         outputMessage += 'i';
@@ -279,14 +281,14 @@ void writeValueIfNeed() { //funzione per la scrittura dal guanto all'app
         ThisThread::sleep_for(400ms);
     }
     
+    /*
     if (vPiezo > 0.75f) {
         outputMessage += 'v';
         printf("V value: %f\n", vPiezo.read()*1.0f);
         resetTicker();
         ThisThread::sleep_for(400ms);
     }
-    
-    /*
+
     if (zPiezo > 0.75f) {
         outputMessage += 'z';
         printf("Z value: %f\n", zPiezo.read()*1.0f);
@@ -535,16 +537,6 @@ int main() {
     vSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
     //zSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
 
-    //Da rimuovere
-    //aSensor.suspend();
-
-    /*TODO: Dato che il modulo HM-10 invia un massimo di 20 caratteri per volta, bisogna capire come impacchettare i messaggi, 
-    in modo che l'app riesca a capire dove inizia e dove finisce il mesaggio, e renderizzare un'unica nuvoletta. 
-    
-    Sto immaginando di implementare due TAG <r>MessageUUID</r> e <w id=MessageUUID>Messaggio</w> 
-    per indicare se il messaggio che sto inviando è una notifica di lettura oppure è un messaggio da stampare nella chat
-    ed aggiungere la proprietà id in modo da poter rendere univoci i messaggi inviati e gestirli correttamente ambo i lati
-    */
 
     //Test di scrittura dal guanto all'app
     write("Bluetooth initialized");
