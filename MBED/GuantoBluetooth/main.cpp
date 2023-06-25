@@ -23,51 +23,51 @@ BufferedSerial pc(USBTX, USBRX); // RX, TX pins for pc
 
 //Input
 AnalogIn aPiezo(A0);
-AnalogIn bPiezo(A1);
-AnalogIn cPiezo(A2);
+//AnalogIn bPiezo(A1);
+AnalogIn cPiezo(A1);
 AnalogIn dPiezo(A2);
-AnalogIn ePiezo(A2);
-AnalogIn fPiezo(A2);
-AnalogIn gPiezo(A2);
-AnalogIn hPiezo(A2);
-AnalogIn iPiezo(A2);
-AnalogIn lPiezo(A2);
-AnalogIn mPiezo(A2);
-AnalogIn nPiezo(A2);
-AnalogIn oPiezo(A2);
-AnalogIn pPiezo(A2);
-AnalogIn qPiezo(A2);
-AnalogIn rPiezo(A2);
-AnalogIn sPiezo(A2);
-AnalogIn tPiezo(A2);
-AnalogIn uPiezo(A2);
-AnalogIn vPiezo(A2);
-AnalogIn zPiezo(A2);
+AnalogIn ePiezo(A3);
+//AnalogIn fPiezo(A2);
+AnalogIn gPiezo(A4);
+//AnalogIn hPiezo(A2);
+AnalogIn iPiezo(D0);
+AnalogIn lPiezo(D1);
+AnalogIn mPiezo(D11);
+AnalogIn nPiezo(D12);
+AnalogIn oPiezo(D13);
+AnalogIn pPiezo(PB_1);
+//AnalogIn qPiezo(A2);
+AnalogIn rPiezo(PC_2);
+AnalogIn sPiezo(PC_3);
+AnalogIn tPiezo(PC_4);
+AnalogIn uPiezo(PC_5);
+AnalogIn vPiezo(A5);
+//AnalogIn zPiezo(A2);
 
-//TODO: Sostituire i led 
-PwmOut aSensor(D3);
-PwmOut bSensor(D5);
-PwmOut cSensor(D6);
-PwmOut dSensor(D6);
-PwmOut eSensor(D6);
-PwmOut fSensor(D6);
-PwmOut gSensor(D6);
-PwmOut hSensor(D6);
-PwmOut iSensor(D6);
-PwmOut lSensor(D6);
-PwmOut mSensor(D6);
-PwmOut nSensor(D6);
-PwmOut oSensor(D6);
-PwmOut pSensor(D6);
-PwmOut qSensor(D6);
-PwmOut rSensor(D6);
-PwmOut sSensor(D6);
+ 
+PwmOut aSensor(PC_8);
+//PwmOut bSensor(D5);
+PwmOut cSensor(PC_6);
+PwmOut dSensor(PA_11);
+PwmOut eSensor(D10);
+//PwmOut fSensor(D6);
+PwmOut gSensor(PB_15);
+//PwmOut hSensor(D6);
+PwmOut iSensor(PB_14);
+PwmOut lSensor(PB_13);
+PwmOut mSensor(PA_13);
+PwmOut nSensor(PA_15);
+PwmOut oSensor(PB_7);
+PwmOut pSensor(D4);
+//PwmOut qSensor(D6);
+PwmOut rSensor(D3);
+PwmOut sSensor(D5);
 PwmOut tSensor(D6);
-PwmOut uSensor(D6);
-PwmOut vSensor(D6);
-PwmOut zSensor(D6);
+PwmOut uSensor(D7);
+PwmOut vSensor(D9);
+//PwmOut zSensor(D6);
 
-DigitalIn buttonInvia(BUTTON1);
+DigitalIn buttonInvia(PC_13);
 
 float frequency = 200; // Vibration frequency in Hz
 float dutyCycle = 0.5; // Duty cycle (0.0 to 1.0)
@@ -144,12 +144,14 @@ void writeValueIfNeed() { //funzione per la scrittura dal guanto all'app
         ThisThread::sleep_for(400ms);
     } 
     
+    /*
     if (bPiezo > 0.75f) {
         outputMessage += 'b';
         printf("B value: %f\n", bPiezo.read()*1.0f);
         resetTicker();
         ThisThread::sleep_for(400ms);
     } 
+    */
 
 
     if (cPiezo > 0.75f) {
@@ -173,12 +175,14 @@ void writeValueIfNeed() { //funzione per la scrittura dal guanto all'app
         ThisThread::sleep_for(400ms);
     }
     
+    /*
     if (fPiezo > 0.75f) {
         outputMessage += 'f';
         printf("F value: %f\n", fPiezo.read()*1.0f);
         resetTicker();
         ThisThread::sleep_for(400ms);
     }
+    */
     
     if (gPiezo > 0.75f) {
         outputMessage += 'g';
@@ -187,12 +191,14 @@ void writeValueIfNeed() { //funzione per la scrittura dal guanto all'app
         ThisThread::sleep_for(400ms);
     } 
     
+    /*
     if (hPiezo > 0.75f) {
         outputMessage += 'h';
         printf("H value: %f\n", hPiezo.read()*1.0f);
         resetTicker();
         ThisThread::sleep_for(400ms);
     }
+    */
     
     if (iPiezo > 0.75f) {
         outputMessage += 'i';
@@ -236,12 +242,14 @@ void writeValueIfNeed() { //funzione per la scrittura dal guanto all'app
         ThisThread::sleep_for(400ms);
     }
     
+    /*
     if (qPiezo > 0.75f) {
         outputMessage += 'q';
         printf("Q value: %f\n", qPiezo.read()*1.0f);
         resetTicker();
         ThisThread::sleep_for(400ms);
     }
+    */
     
     if (rPiezo > 0.75f) {
         outputMessage += 'r';
@@ -278,12 +286,14 @@ void writeValueIfNeed() { //funzione per la scrittura dal guanto all'app
         ThisThread::sleep_for(400ms);
     }
     
+    /*
     if (zPiezo > 0.75f) {
         outputMessage += 'z';
         printf("Z value: %f\n", zPiezo.read()*1.0f);
         resetTicker();
         ThisThread::sleep_for(400ms);
     }
+    */
   
 
 }
@@ -297,11 +307,13 @@ void valueToGuanto(char c) { //funzione per la lettura dall'app al guanto
         aSensor.write(0);
         aSensor.suspend();
     } else if (c == 'b' || c == 'B') {
+        /*
         bSensor.resume();
         bSensor.write(dutyCycle);
         ThisThread::sleep_for(500ms);
         bSensor.write(0);
         bSensor.suspend();
+        */
     }else if (c == 'c' || c == 'C') {
         cSensor.resume();
         cSensor.write(dutyCycle);
@@ -321,11 +333,13 @@ void valueToGuanto(char c) { //funzione per la lettura dall'app al guanto
         eSensor.write(0);
         eSensor.suspend();
     }else if (c == 'f' || c == 'F') {
+        /*
         fSensor.resume();
         fSensor.write(dutyCycle);
         ThisThread::sleep_for(500ms);
         fSensor.write(0);
         fSensor.suspend();
+        */
     }else if (c == 'g' || c == 'G') {
         gSensor.resume();
         gSensor.write(dutyCycle);
@@ -333,11 +347,13 @@ void valueToGuanto(char c) { //funzione per la lettura dall'app al guanto
         gSensor.write(0);
         gSensor.suspend();
     }else if (c == 'h' || c == 'H') {
+        /*
         hSensor.resume();
         hSensor.write(dutyCycle);
         ThisThread::sleep_for(500ms);
         hSensor.write(0);
         hSensor.suspend();
+        */
     }else if (c == 'i' || c == 'I') {
         iSensor.resume();
         iSensor.write(dutyCycle);
@@ -375,11 +391,13 @@ void valueToGuanto(char c) { //funzione per la lettura dall'app al guanto
         pSensor.write(0);
         pSensor.suspend();
     }else if (c == 'q' || c == 'Q') {
+        /*
         qSensor.resume();
         qSensor.write(dutyCycle);
         ThisThread::sleep_for(500ms);
         qSensor.write(0);
         qSensor.suspend();
+        */
     }else if (c == 'r' || c == 'R') {
         rSensor.resume();
         rSensor.write(dutyCycle);
@@ -411,35 +429,15 @@ void valueToGuanto(char c) { //funzione per la lettura dall'app al guanto
         vSensor.write(0);
         vSensor.suspend();
     }else if (c == 'z' || c == 'Z') {
+        /*
         zSensor.resume();
         zSensor.write(dutyCycle);
         ThisThread::sleep_for(500ms);
         zSensor.write(0);
         zSensor.suspend();
+        */
     }
 
-
-
-    
-    cSensor = (c == 'c' || c == 'C');
-    dSensor = (c == 'd' || c == 'D');
-    eSensor = (c == 'e' || c == 'E');
-    fSensor = (c == 'f' || c == 'F');
-    gSensor = (c == 'g' || c == 'G');
-    hSensor = (c == 'h' || c == 'H');
-    iSensor = (c == 'i' || c == 'I');
-    lSensor = (c == 'l' || c == 'L');
-    mSensor = (c == 'm' || c == 'M');
-    nSensor = (c == 'n' || c == 'N');
-    oSensor = (c == 'o' || c == 'O');
-    pSensor = (c == 'p' || c == 'P');
-    qSensor = (c == 'q' || c == 'Q');
-    rSensor = (c == 'r' || c == 'R');
-    sSensor = (c == 's' || c == 'S');
-    tSensor = (c == 't' || c == 'T');
-    uSensor = (c == 'u' || c == 'U');
-    vSensor = (c == 'v' || c == 'V');
-    zSensor = (c == 'z' || c == 'Z');
 }
 
 // Ricevere dati dal modulo Bluetooth
@@ -516,10 +514,29 @@ int main() {
     pc.set_baud(9600);
 
     aSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
-    aSensor.suspend();
+    //bSensor.period(1.0 / frequency);
+    cSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
+    dSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
+    eSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
+    //fSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
+    gSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
+    //hSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
+    iSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
+    lSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
+    mSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
+    nSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
+    oSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
+    pSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
+    //qSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
+    rSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
+    sSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
+    tSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
+    uSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
+    vSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
+    //zSensor.period(1.0 / frequency); // Set the PWM period based on the desired frequency
 
-    bSensor.period(1.0 / frequency);
-    bSensor.suspend();
+    //Da rimuovere
+    //aSensor.suspend();
 
     /*TODO: Dato che il modulo HM-10 invia un massimo di 20 caratteri per volta, bisogna capire come impacchettare i messaggi, 
     in modo che l'app riesca a capire dove inizia e dove finisce il mesaggio, e renderizzare un'unica nuvoletta. 
