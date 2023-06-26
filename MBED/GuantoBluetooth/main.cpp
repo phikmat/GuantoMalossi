@@ -22,7 +22,7 @@ BufferedSerial bluetooth(D8, D2); // RX, TX pins for HC-10 Bluetooth modu
 BufferedSerial pc(USBTX, USBRX); // RX, TX pins for pc
 
 //Input
-//7 lettere in meno
+//7 lettere in meno (g+v)
 AnalogIn aPiezo(A0);    //OK -> ADC1/O
 //AnalogIn bPiezo(A1);
 AnalogIn cPiezo(A1);    //OK -> ADC1/1
@@ -70,7 +70,7 @@ PwmOut vSensor(D9);
 ////PwmOut zSensor(D6);
 
 
-DigitalIn buttonInvia(PC_13);
+DigitalIn buttonInvia(BUTTON1);
 
 float frequency = 200; // Vibration frequency in Hz
 float dutyCycle = 0.5; // Duty cycle (0.0 to 1.0)
@@ -140,7 +140,7 @@ void writeValueIfNeed() { //funzione per la scrittura dal guanto all'app
         return;
     }
 
-    if (aPiezo > 0.75f) {    //0.75 è la soglia che identifica l'input della persona sordocieca
+    if (aPiezo > 0.45f) {    //0.75 è la soglia che identifica l'input della persona sordocieca
         outputMessage += 'a';
         printf("A value: %f\n", aPiezo.read()*1.0f);
         resetTicker();
@@ -156,7 +156,7 @@ void writeValueIfNeed() { //funzione per la scrittura dal guanto all'app
     } 
     */
 
-
+    //printf("C value: %f\n", cPiezo.read()*1.0f);
     if (cPiezo > 0.75f) {
         outputMessage += 'c';
         printf("C value: %f\n", cPiezo.read()*1.0f);
@@ -164,7 +164,7 @@ void writeValueIfNeed() { //funzione per la scrittura dal guanto all'app
         ThisThread::sleep_for(400ms);
     }
     
-    if (dPiezo > 0.75f) {
+    if (dPiezo > 0.99f) {
         outputMessage += 'd';
         printf("D value: %f\n", dPiezo.read()*1.0f);
         resetTicker();
@@ -202,35 +202,35 @@ void writeValueIfNeed() { //funzione per la scrittura dal guanto all'app
     */
     
     
-    if (iPiezo > 0.75f) {
+    if (iPiezo > 0.99f) {
         outputMessage += 'i';
         printf("I value: %f\n", iPiezo.read()*1.0f);
         resetTicker();
         ThisThread::sleep_for(400ms);
     }
     
-    if (lPiezo > 0.75f) {
+    if (lPiezo > 0.7f) {
         outputMessage += 'l';
         printf("L value: %f\n", lPiezo.read()*1.0f);
         resetTicker();
         ThisThread::sleep_for(400ms);
     }
     
-    if (mPiezo > 0.75f) {
+    if (mPiezo > 0.7f) {
         outputMessage += 'm';
         printf("M value: %f\n", mPiezo.read()*1.0f);
         resetTicker();
         ThisThread::sleep_for(400ms);
     }
     
-    if (nPiezo > 0.75f) {
+    if (nPiezo > 0.85f) {
         outputMessage += 'n';
         printf("N value: %f\n", nPiezo.read()*1.0f);
         resetTicker();
         ThisThread::sleep_for(400ms);
     }
     
-    if (oPiezo > 0.75f) {
+    if (oPiezo > 0.6f) {
         outputMessage += 'o';
         printf("O value: %f\n", oPiezo.read()*1.0f);
         resetTicker();
@@ -253,14 +253,15 @@ void writeValueIfNeed() { //funzione per la scrittura dal guanto all'app
     }
     */
     
+    //printf("R value: %f\n", rPiezo.read()*1.0f);
     if (rPiezo > 0.75f) {
         outputMessage += 'r';
-        printf("R value: %f\n", rPiezo.read()*1.0f);
+        printf("-> R value: %f\n", rPiezo.read()*1.0f);
         resetTicker();
         ThisThread::sleep_for(400ms);
     }
     
-    if (sPiezo > 0.75f) {
+    if (sPiezo > 0.99f) {
         outputMessage += 's';
         printf("S value: %f\n", sPiezo.read()*1.0f);
         resetTicker();
@@ -274,6 +275,7 @@ void writeValueIfNeed() { //funzione per la scrittura dal guanto all'app
         ThisThread::sleep_for(400ms);
     }
     
+    //printf("U value: %f\n", uPiezo.read()*1.0f);
     if (uPiezo > 0.75f) {
         outputMessage += 'u';
         printf("U value: %f\n", uPiezo.read()*1.0f);
@@ -466,8 +468,10 @@ void readValueIfNeed() {
             fullMessage += c;
         }
 
+        printf("\nFull Message: %s\n", fullMessage.c_str());
+
         //Recupero l'ID del messaggio
-        regex regexId(".id=([^>]+)>([^<]+).");
+        regex regexId(".*id=([^>]+)>([^<]+)?<\\/([^>]+)>");
         smatch message; 
         regex_search(fullMessage, message, regexId); 
         idMessage += message[1];
