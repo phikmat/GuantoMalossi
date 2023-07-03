@@ -78,6 +78,8 @@ class ChatTableViewCell: UITableViewCell {
             statusLabel.text = isRead ? "Letto" : "Inviato"
             statusLabel.textAlignment = .right
             statusLabel.textColor = UIColor.black
+        } else {
+            statusLabel.text = ""
         }
         
         let px: CGFloat = isSent ? bounds.width - tw : bubbleAngleWidth

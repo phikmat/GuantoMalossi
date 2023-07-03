@@ -41,8 +41,8 @@ AnalogIn pPiezo(PB_1);  //OK -> ADC1/9
 AnalogIn rPiezo(PC_2);  //OK -> ADC1/12
 AnalogIn sPiezo(PC_3);  //OK -> ADC1/13
 AnalogIn tPiezo(PC_4);  //OK -> ADC1/14
-AnalogIn uPiezo(PC_5);  //OK -> ADC1/15
-//AnalogIn vPiezo(A0);  
+//AnalogIn uPiezo(PC_5);  
+AnalogIn vPiezo(PC_5);  //OK -> ADC1/15
 //AnalogIn zPiezo(A2);
 
 //Output 
@@ -71,9 +71,10 @@ PwmOut vSensor(D9);
 
 
 DigitalIn buttonInvia(BUTTON1);
+DigitalOut ledScrittura(D15);
 
 float frequency = 200; // Vibration frequency in Hz
-float dutyCycle = 0.5; // Duty cycle (0.0 to 1.0)
+float dutyCycle = 0.8; // Duty cycle (0.0 to 1.0)
 
 string outputMessage = "";
 
@@ -275,15 +276,16 @@ void writeValueIfNeed() { //funzione per la scrittura dal guanto all'app
         ThisThread::sleep_for(400ms);
     }
     
-    //printf("U value: %f\n", uPiezo.read()*1.0f);
+    /*
     if (uPiezo > 0.75f) {
         outputMessage += 'u';
         printf("U value: %f\n", uPiezo.read()*1.0f);
         resetTicker();
         ThisThread::sleep_for(400ms);
     }
+    */
     
-    /*
+    
     if (vPiezo > 0.75f) {
         outputMessage += 'v';
         printf("V value: %f\n", vPiezo.read()*1.0f);
@@ -291,6 +293,7 @@ void writeValueIfNeed() { //funzione per la scrittura dal guanto all'app
         ThisThread::sleep_for(400ms);
     }
 
+/*
     if (zPiezo > 0.75f) {
         outputMessage += 'z';
         printf("Z value: %f\n", zPiezo.read()*1.0f);
@@ -548,6 +551,7 @@ int main() {
     while(1){
         writeValueIfNeed();
         readValueIfNeed();
+        ledScrittura = !outputMessage.empty();
     }
 
 }
